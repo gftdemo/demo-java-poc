@@ -13,29 +13,41 @@ public class CommentsController {
   @Value("${app.secret}")
   private String secret;
 
-  @CrossOrigin(origins = "*")
-  @RequestMapping(value = "/comments", method = RequestMethod.GET, produces = "application/json")
+  // Alterado por GFT AI Impact Bot: Substituído @RequestMapping por @GetMapping
+  @CrossOrigin(origins = "*") // Certifique-se de que habilitar CORS é seguro aqui
+  @GetMapping(value = "/comments", produces = "application/json")
   List<Comment> comments(@RequestHeader(value="x-auth-token") String token) {
     User.assertAuth(secret, token);
     return Comment.fetch_all();
   }
 
-  @CrossOrigin(origins = "*")
-  @RequestMapping(value = "/comments", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+  // Alterado por GFT AI Impact Bot: Substituído @RequestMapping por @PostMapping
+  @CrossOrigin(origins = "*") // Certifique-se de que habilitar CORS é seguro aqui
+  @PostMapping(value = "/comments", produces = "application/json", consumes = "application/json")
   Comment createComment(@RequestHeader(value="x-auth-token") String token, @RequestBody CommentRequest input) {
-    return Comment.create(input.username, input.body);
+    return Comment.create(input.getUsername(), input.getBody());
   }
 
-  @CrossOrigin(origins = "*")
-  @RequestMapping(value = "/comments/{id}", method = RequestMethod.DELETE, produces = "application/json")
+  // Alterado por GFT AI Impact Bot: Substituído @RequestMapping por @DeleteMapping
+  @CrossOrigin(origins = "*") // Certifique-se de que habilitar CORS é seguro aqui
+  @DeleteMapping(value = "/comments/{id}", produces = "application/json")
   Boolean deleteComment(@RequestHeader(value="x-auth-token") String token, @PathVariable("id") String id) {
     return Comment.delete(id);
   }
 }
 
 class CommentRequest implements Serializable {
-  public String username;
-  public String body;
+  // Alterado por GFT AI Impact Bot: tornar username e body privados e fornecer acessadores
+  private String username;
+  private String body;
+
+  public String getUsername() {
+    return username;
+  }
+
+  public String getBody() {
+    return body;
+  }
 }
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
