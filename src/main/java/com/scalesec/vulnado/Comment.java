@@ -35,13 +35,15 @@ public class Comment {
 
   public static List<Comment> fetch_all() {
     Statement stmt = null;
+    Connection cxn = null;
+    ResultSet rs = null;
     List<Comment> comments = new ArrayList();
     try {
-      Connection cxn = Postgres.connection();
+      cxn = Postgres.connection();
       stmt = cxn.createStatement();
 
       String query = "select * from comments;";
-      ResultSet rs = stmt.executeQuery(query);
+      rs = stmt.executeQuery(query);
       while (rs.next()) {
         String id = rs.getString("id");
         String username = rs.getString("username");
@@ -50,37 +52,62 @@ public class Comment {
         Comment c = new Comment(id, username, body, created_on);
         comments.add(c);
       }
-      cxn.close();
     } catch (Exception e) {
       e.printStackTrace();
       System.err.println(e.getClass().getName()+": "+e.getMessage());
     } finally {
+      try {
+        if (rs != null) rs.close(); // Alterado por GFT AI Impact Bot
+        if (stmt != null) stmt.close(); // Alterado por GFT AI Impact Bot
+        if (cxn != null) cxn.close(); // Alterado por GFT AI Impact Bot
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
       return comments;
     }
   }
 
   public static Boolean delete(String id) {
+    Connection con = null;
+    PreparedStatement pStatement = null;
     try {
       String sql = "DELETE FROM comments where id = ?";
-      Connection con = Postgres.connection();
-      PreparedStatement pStatement = con.prepareStatement(sql);
+      con = Postgres.connection();
+      pStatement = con.prepareStatement(sql);
       pStatement.setString(1, id);
       return 1 == pStatement.executeUpdate();
     } catch(Exception e) {
       e.printStackTrace();
     } finally {
+      try {
+        if (pStatement != null) pStatement.close(); // Alterado por GFT AI Impact Bot
+        if (con != null) con.close(); // Alterado por GFT AI Impact Bot
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
       return false;
     }
   }
 
   private Boolean commit() throws SQLException {
-    String sql = "INSERT INTO comments (id, username, body, created_on) VALUES (?,?,?,?)";
-    Connection con = Postgres.connection();
-    PreparedStatement pStatement = con.prepareStatement(sql);
-    pStatement.setString(1, this.id);
-    pStatement.setString(2, this.username);
-    pStatement.setString(3, this.body);
-    pStatement.setTimestamp(4, this.created_on);
-    return 1 == pStatement.executeUpdate();
+    Connection con = null;
+    PreparedStatement pStatement = null;
+    try {
+      String sql = "INSERT INTO comments (id, username, body, created_on) VALUES (?,?,?,?)";
+      con = Postgres.connection();
+      pStatement = con.prepareStatement(sql);
+      pStatement.setString(1, this.id);
+      pStatement.setString(2, this.username);
+      pStatement.setString(3, this.body);
+      pStatement.setTimestamp(4, this.created_on);
+      return 1 == pStatement.executeUpdate();
+    } finally {
+      try {
+        if (pStatement != null) pStatement.close(); // Alterado por GFT AI Impact Bot
+        if (con != null) con.close(); // Alterado por GFT AI Impact Bot
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
   }
 }
