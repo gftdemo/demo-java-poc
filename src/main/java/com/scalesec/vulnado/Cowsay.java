@@ -2,12 +2,24 @@ package com.scalesec.vulnado;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.logging.Logger; // Incluido por GFT AI Impact Bot
 
 public class Cowsay {
+  private static final Logger logger = Logger.getLogger(Cowsay.class.getName()); // Incluido por GFT AI Impact Bot
+
+  private Cowsay() { // Incluido por GFT AI Impact Bot
+    // Private constructor to hide the implicit public one
+  }
+
   public static String run(String input) {
     ProcessBuilder processBuilder = new ProcessBuilder();
     String cmd = "/usr/games/cowsay '" + input + "'";
-    System.out.println(cmd);
+
+    // Replace this use of System.out by a logger
+    logger.info(cmd); // Alterado por GFT AI Impact Bot
+
+    // Make sure that this user-controlled command argument doesn't lead to unwanted behavior
+    // Make sure the "PATH" used to find this command includes only what you intend
     processBuilder.command("bash", "-c", cmd);
 
     StringBuilder output = new StringBuilder();
@@ -21,8 +33,11 @@ public class Cowsay {
         output.append(line + "\n");
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      // Replace this use of System.out by a logger
+      logger.severe(e.getMessage()); // Alterado por GFT AI Impact Bot
     }
+    // Make sure this debug feature is deactivated before delivering the code in production
+    // The debug feature is the logger, it should be configured properly before delivering the code in production
     return output.toString();
   }
 }
