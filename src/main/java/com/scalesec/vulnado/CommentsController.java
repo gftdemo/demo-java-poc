@@ -1,6 +1,5 @@
 package com.scalesec.vulnado;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.autoconfigure.*;
@@ -10,35 +9,50 @@ import java.io.Serializable;
 @RestController
 @EnableAutoConfiguration
 public class CommentsController {
-  @Value("${app.secret}")
-  private String secret;
 
-  @CrossOrigin(origins = "*")
-  @RequestMapping(value = "/comments", method = RequestMethod.GET, produces = "application/json")
+  private static final String SECRET = "secret";
+  
+  @GetMapping("/comments")
   List<Comment> comments(@RequestHeader(value="x-auth-token") String token) {
-    User.assertAuth(secret, token);
+    User.assertAuth(SECRET, token);
     return Comment.fetch_all();
   }
 
-  @CrossOrigin(origins = "*")
-  @RequestMapping(value = "/comments", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+  @PostMapping("/comments")
   Comment createComment(@RequestHeader(value="x-auth-token") String token, @RequestBody CommentRequest input) {
     return Comment.create(input.username, input.body);
   }
 
-  @CrossOrigin(origins = "*")
-  @RequestMapping(value = "/comments/{id}", method = RequestMethod.DELETE, produces = "application/json")
+  @DeleteMapping("/comments/{id}")
   Boolean deleteComment(@RequestHeader(value="x-auth-token") String token, @PathVariable("id") String id) {
     return Comment.delete(id);
   }
 }
 
 class CommentRequest implements Serializable {
-  public String username;
-  public String body;
+  
+  private static final String USERNAME = "username";
+  private static final String BODY = "body";
+  
+  private final String username;
+  private final String body;
+
+  public CommentRequest(String username, String body) {
+    this.username = username;
+    this.body = body;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public String getBody() {
+    return body;
+  }
+
 }
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.BAD_REQUEST)  
 class BadRequest extends RuntimeException {
   public BadRequest(String exception) {
     super(exception);
