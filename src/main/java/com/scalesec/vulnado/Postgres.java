@@ -28,6 +28,7 @@ public class Postgres {
         }
         return null;
     }
+    
     public static void setup(){
         try {
             System.out.println("Setting up Database...");
@@ -58,59 +59,44 @@ public class Postgres {
         }
     }
 
-    // Java program to calculate MD5 hash value
-    public static String md5(String input)
-    {
+    // Use a stronger hashing algorithm
+    public static String hash(String input) {
         try {
-
-            // Static getInstance method is called with hashing MD5
-            MessageDigest md = MessageDigest.getInstance("MD5");
-
-            // digest() method is called to calculate message digest
-            //  of an input digest() return array of byte
-            byte[] messageDigest = md.digest(input.getBytes());
-
-            // Convert byte array into signum representation
-            BigInteger no = new BigInteger(1, messageDigest);
-
-            // Convert message digest into hex value
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
+            BigInteger number = new BigInteger(1, hash);
+            StringBuilder hexString = new StringBuilder(number.toString(16));
+            while (hexString.length() < 32) {
+                hexString.insert(0, '0'); 
             }
-            return hashtext;
-        }
-
-        // For specifying wrong message digest algorithms
-        catch (NoSuchAlgorithmException e) {
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
-
+    
     private static void insertUser(String username, String password) {
-       String sql = "INSERT INTO users (user_id, username, password, created_on) VALUES (?, ?, ?, current_timestamp)";
-       PreparedStatement pStatement = null;
-       try {
-          pStatement = connection().prepareStatement(sql);
-          pStatement.setString(1, UUID.randomUUID().toString());
-          pStatement.setString(2, username);
-          pStatement.setString(3, md5(password));
-          pStatement.executeUpdate();
-       } catch(Exception e) {
-         e.printStackTrace();
-       }
+        String sql = "INSERT INTO users (user_id, username, password, created_on) VALUES (?, ?, ?, current_timestamp)";
+        
+        try (PreparedStatement pstmt = connection().prepareStatement(sql)) {
+            pstmt.setString(1, UUID.randomUUID().toString());
+            pstmt.setString(2, username);
+            pstmt.setString(3, hash(password));
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void insertComment(String username, String body) {
         String sql = "INSERT INTO comments (id, username, body, created_on) VALUES (?, ?, ?, current_timestamp)";
-        PreparedStatement pStatement = null;
-        try {
-            pStatement = connection().prepareStatement(sql);
-            pStatement.setString(1, UUID.randomUUID().toString());
-            pStatement.setString(2, username);
-            pStatement.setString(3, body);
-            pStatement.executeUpdate();
-        } catch(Exception e) {
+        
+        try (PreparedStatement pstmt = connection().prepareStatement(sql)) {
+            pstmt.setString(1, UUID.randomUUID().toString());
+            pstmt.setString(2, username);
+            pstmt.setString(3, body);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
