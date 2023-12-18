@@ -8,9 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
 import java.net.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LinkLister {
+  
+  private static final Logger logger = LoggerFactory.getLogger(LinkLister.class);
+
+  private LinkLister() {
+    // Prevent instantiation
+  }
+
   public static List<String> getLinks(String url) throws IOException {
     List<String> result = new ArrayList<String>();
     Document doc = Jsoup.connect(url).get();
@@ -25,7 +33,7 @@ public class LinkLister {
     try {
       URL aUrl= new URL(url);
       String host = aUrl.getHost();
-      System.out.println(host);
+      logger.info(host);
       if (host.startsWith("172.") || host.startsWith("192.168") || host.startsWith("10.")){
         throw new BadRequest("Use of Private IP");
       } else {
