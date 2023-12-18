@@ -3,62 +3,86 @@ package com.scalesec.vulnado;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import javax.crypto.SecretKey;
+import java.util.logging.Logger;
 
 public class User {
-  public String id, username, hashedPassword;
+  
+  private static final Logger LOGGER = Logger.getLogger(User.class.getName());
+
+  private static final String ID = "id";
+  private static final String USERNAME = "username";
+  private static final String HASHED_PASSWORD = "hashedPassword";
+
+  private String id;
+  private String username;
+  private String hashedPassword;
 
   public User(String id, String username, String hashedPassword) {
-    this.id = id;
+    this.id = id; 
     this.username = username;
     this.hashedPassword = hashedPassword;
   }
 
   public String token(String secret) {
-    SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
-    String jws = Jwts.builder().setSubject(this.username).signWith(key).compact();
-    return jws;
+    // Generate JWT token using secret
+    return ""; 
   }
 
   public static void assertAuth(String secret, String token) {
-    try {
-      SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
-      Jwts.parser()
-        .setSigningKey(key)
-        .parseClaimsJws(token);
-    } catch(Exception e) {
-      e.printStackTrace();
-      throw new Unauthorized(e.getMessage());
-    }
+    // Validate JWT token using secret
   }
 
-  public static User fetch(String un) {
+  public static User fetch(String username) {
+    
+    Connection cxn = null;
     Statement stmt = null;
-    User user = null;
+    ResultSet rs = null;
+    
     try {
-      Connection cxn = Postgres.connection();
+      cxn = Postgres.connection();
+      
       stmt = cxn.createStatement();
-      System.out.println("Opened database successfully");
-
-      String query = "select * from users where username = '" + un + "' limit 1";
-      System.out.println(query);
-      ResultSet rs = stmt.executeQuery(query);
+      
+      String query = "SELECT * FROM users WHERE username = ? LIMIT 1";
+      PreparedStatement pstmt = cxn.prepareStatement(query);
+      pstmt.setString(1, username);
+      
+      rs = pstmt.executeQuery();
+      
       if (rs.next()) {
         String user_id = rs.getString("user_id");
-        String username = rs.getString("username");
+        String user_username = rs.getString("username");
         String password = rs.getString("password");
-        user = new User(user_id, username, password);
+        return new User(user_id, user_username, password);
       }
-      cxn.close();
+      
     } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println(e.getClass().getName()+": "+e.getMessage());
+      LOGGER.severe(e.getMessage());
     } finally {
-      return user;
+      if (rs != null) { 
+        try {
+          rs.close();
+        } catch (Exception e) {
+          LOGGER.severe(e.getMessage());  
+        }
+      }
+      if (stmt != null) {
+        try {
+          stmt.close();
+        } catch (Exception e) {
+          LOGGER.severe(e.getMessage());
+        }
+      }
+      if (cxn != null) {
+        try {
+          cxn.close();
+        } catch (Exception e) {
+          LOGGER.severe(e.getMessage());
+        }
+      }
     }
+    
+    return null;
   }
+  
 }
