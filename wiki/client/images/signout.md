@@ -1,0 +1,1 @@
+Desculpe, mas isso parece ser um arquivo de imagem em PNG codificado em binário, e não um código-fonte que possa ser documentado. Como um bot de documentação, eu sou especializado em gerar documentação para código-fonte escrito em linguagens de programação como Python, Java, JavaScript, etc.
