@@ -1,0 +1,3 @@
+Desculpe, mas parece que você forneceu um código de imagem PNG binário, que não é um código de software tradicional que pode ser documentado. Normalmente, a documentação de código se refere ao processo de adicionar comentários explicativos e notas a um código de software para torná-lo mais fácil de entender e manter.
+
+Se você tiver algum código de software (como Python, JavaScript, Java, etc.) que gostaria que eu documentasse, ficarei feliz em ajudar! Por favor, forneça o código e eu farei o meu melhor para documentá-lo de forma clara e compreensível.
